@@ -22,16 +22,16 @@ cp $* ${upload}
 accessToken=${ACCESS_TOKEN}
 metadata_server_url=https://${REDWOOD_ENDPOINT}:8444
 storage_server_url=https://${REDWOOD_ENDPOINT}:5431
-trust_store_path=${DCC_HOME}/ucsc-storage-client/conf/cacerts
+trust_store_path=${DCC_HOME}/cert/clientcacerts
 trust_store_pass=${UCSC_STORAGE_TRUSTSTORE_PASSWORD}
 
 # register upload
 echo Registering upload:
-java -Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dserver.baseUrl=${metadata_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/ucsc-storage-client/lib/dcc-metadata-client-0.0.16-SNAPSHOT/lib/dcc-metadata-client.jar -i ${upload} -o ${manifest} -m manifest.txt
+java -Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dserver.baseUrl=${metadata_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/dcc-metadata-client-0.0.16-SNAPSHOT/lib/dcc-metadata-client.jar -i ${upload} -o ${manifest} -m manifest.txt
 
 # perform upload
 echo Performing upload:
-java -Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dmetadata.url=${metadata_server_url} -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/ucsc-storage-client/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar upload --manifest ${manifest}/manifest.txt
+java -Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dmetadata.url=${metadata_server_url} -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar upload --manifest ${manifest}/manifest.txt
 
 # cleanup
 rm -r ${upload}

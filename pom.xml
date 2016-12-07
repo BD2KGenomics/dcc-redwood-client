@@ -18,9 +18,16 @@
   </properties>
     
   <build>
+    <defaultGoal>package</defaultGoal>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <attach>${package.attach}</attach>
+          <descriptors>
+            <descriptor>src/main/assembly/bin.xml</descriptor>
+          </descriptors>
+        </configuration>
         <executions>
           <execution>
             <id>create-dist</id>
@@ -28,12 +35,6 @@
             <goals>
               <goal>single</goal>
             </goals>
-            <configuration>
-              <attach>${package.attach}</attach>
-              <descriptors>
-                <descriptor>src/main/assembly/bin.xml</descriptor>
-              </descriptors>
-            </configuration>
           </execution>
         </executions>
       </plugin>

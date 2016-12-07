@@ -12,16 +12,12 @@ RUN apt-get update && apt-get install -y uuid-runtime
 
 # add dcc files
 ENV DCC_HOME /dcc
-WORKDIR $DCC_HOME
-RUN mkdir -p $DCC_HOME
+WORKDIR ${DCC_HOME}
+RUN mkdir -p ${DCC_HOME}
+ADD bin ${DCC_HOME}/bin
+ADD cert ${DCC_HOME}/cert
+ADD lib ${DCC_HOME}/lib
 
-# can pass in archive or use built archive
-ARG DCC_ARCHIVE
-COPY ${DCC_ARCHIVE:-./artifacts/ucsc-storage-client-dist.tar.gz} $DCC_HOME/ucsc-storage-client-dist.tar.gz
-RUN tar xf $DCC_HOME/ucsc-storage-client-dist.tar.gz
-ENV PATH $DCC_HOME/ucsc-storage-client/bin:$PATH
-
+ENV PATH ${DCC_HOME}/bin:$PATH
 ENV REDWOOD_ENDPOINT storage.ucsc-cgl.org
-ENV UCSC_STORAGE_METADATA_SERVER https://${REDWOOD_ENDPOINT}:8444
-ENV UCSC_STORAGE_STORAGE_SERVER https://${REDWOOD_ENDPOINT}:5431
 ENV UCSC_STORAGE_TRUSTSTORE_PASSWORD=changeit
