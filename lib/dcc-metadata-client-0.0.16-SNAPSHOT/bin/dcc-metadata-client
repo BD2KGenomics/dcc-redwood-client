@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# Copyright 2015(c) The Ontario Institute for Cancer Research. All rights reserved.
+#
+# Description:
+#   Runs the dcc-metadata-client to register GNOS entities on the metadata server.
+#
+
+setJava() {
+  if [[ -n $JAVA_HOME ]]; then
+    JAVA=$JAVA_HOME/bin/java
+  elif [[ -n $(which java) ]]; then
+    JAVA=java
+  else
+    echo Failed to find java. Either set JAVA_HOME or add java to the PATH
+    exit 1
+  fi
+
+  echo $JAVA
+}
+
+JAVA=$(setJava)
+
+base_dir=$(dirname $0)/..
+${JAVA} \
+  -jar ${base_dir}/lib/dcc-metadata-client.jar \
+  --spring.config.location=${base_dir}/conf/application.yml \
+  --logging.config=${base_dir}/conf/logback.xml \
+  --logging.path=${base_dir}/logs \
+  "$@" 
