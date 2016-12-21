@@ -40,7 +40,7 @@
   </fileSets>
   <files>
     <file>
-      <source>src/main/docker/Dockerfile</source>
+      <source>src/main/Dockerfile</source>
       <outputDirectory>.</outputDirectory>
     </file>
     <file>
