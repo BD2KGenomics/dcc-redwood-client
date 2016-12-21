@@ -24,3 +24,4 @@ Build docker image with:
 ```
 mvn && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t benjaminran/redwood-client redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
 ```
+    docker run --rm -it -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data ucsc-cgl bash spinnaker_upload data/sample_tsv/sample.tsv
