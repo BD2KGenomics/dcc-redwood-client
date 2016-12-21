@@ -33,7 +33,7 @@ You need to include file paths to your upload files that start with `/dcc/data` 
 
 You should create a directory where you want to have your files for upload (assumed to be `pwd`), place your `manifest.tsv` in this directory along with all your files for upload, and then execute the following:
 
-    docker run --rm -it -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data quay.io/ucsc_cgl/core-client:1.0.0 spinnaker-upload /dcc/data/sample.tsv
+    docker run --rm -it -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data quay.io/ucsc_cgl/core-client:1.0.0 spinnaker-upload /dcc/data/manifest.tsv
     
     
 ## Download via Manifest
