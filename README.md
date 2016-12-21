@@ -34,7 +34,10 @@ You need to include file paths to your upload files that start with `/dcc/data` 
 You should create a directory where you want to have your files for upload (assumed to be `pwd`), place your `manifest.tsv` in this directory along with all your files for upload, and then execute the following:
 
     docker run --rm -it -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data quay.io/ucsc_cgl/core-client:1.0.0 spinnaker-upload /dcc/data/manifest.tsv
-    
+
+Once completed, you will find a receipt file (`spinnaker/output_metadata/receipt.tsv`) which you should save. It provides various IDs assigned to your donor, specimen, sample and file that make it much easier to find/audit later.
+
+NOTE: Uploads can take a long time and our feedback on the command line needs to be improved. I suggest using a tool like `dstat` to monitor network usage to ensure uploads are in progress.
     
 ## Download via Manifest
 
