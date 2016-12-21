@@ -22,6 +22,9 @@ Look in _/dcc/ucsc-storage-client/conf/_ for further configuration options.
 ## Development
 Build docker image with:
 ```
-mvn && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t benjaminran/redwood-client redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
+mvn && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t quay.io/ucsc_cgl/core-client:1.0.0 redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
 ```
+
+## Upload
+
     docker run --rm -it -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data ucsc-cgl bash spinnaker_upload data/sample_tsv/sample.tsv
