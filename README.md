@@ -38,4 +38,8 @@ You should create a directory where you want to have your files for upload (assu
     
 ## Download via Manifest
 
-    TODO
+This assumes the current working directory (`pwd`) has a manifest, like the ones you can download from http://ucsc-cgl.org/file_browser/.  The command below will then download the files to the current working directory.  
+
+NOTE: make sure you have enough space in `pwd`!!!
+
+    docker run --rm -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data quay.io/ucsc_cgl/core-client:1.0.0 redwood-download /dcc/data/manifest.tsv /dcc/data/
