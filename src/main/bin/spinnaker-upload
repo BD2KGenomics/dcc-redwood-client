@@ -21,7 +21,7 @@ python spinnaker.py \
     --input-metadata-schema schemas/input_metadata.json \
     --metadata-schema schemas/metadata_schema.json \
     --output-dir ../data/spinnaker/output_metadata \
-    --receipt-file ../data/spinnaker/receipt.tsv \
+    --receipt-file receipt.tsv \
     --storage-client-path ${DCC_HOME} \
     --storage-access-token ${ACCESS_TOKEN} \
     ${tsv_file}
