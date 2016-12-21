@@ -23,5 +23,6 @@ python spinnaker.py \
     --output-dir ../data/spinnaker/output_metadata \
     --receipt-file receipt.tsv \
     --storage-client-path ${DCC_HOME}/dcc-spinnaker-client/ucsc-storage-client \
+    --force-upload \
     --storage-access-token ${ACCESS_TOKEN} \
     ${tsv_file}
