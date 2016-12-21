@@ -22,5 +22,27 @@ Look in _/dcc/ucsc-storage-client/conf/_ for further configuration options.
 ## Development
 Build docker image with:
 ```
-mvn && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t benjaminran/redwood-client redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
+mvn && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t quay.io/ucsc_cgl/core-client:1.0.0 redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
 ```
+
+## Upload via Spinnaker
+
+Create a manifest that links your metdata and data.  Your `manifest.tsv` should be a TSV based on this [template](https://docs.google.com/spreadsheets/d/13fqil92C-Evi-4cy_GTnzNMmrD0ssuSCx3-cveZ4k70/edit?usp=sharing).
+
+You need to include file paths to your upload files that start with `/dcc/data` since that's the location used in the docker run below.
+
+You should create a directory where you want to have your files for upload (assumed to be `pwd`), place your `manifest.tsv` in this directory along with all your files for upload, and then execute the following:
+
+    docker run --rm -it -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data quay.io/ucsc_cgl/core-client:1.0.0 spinnaker-upload /dcc/data/manifest.tsv
+
+Once completed, you will find a receipt file (`spinnaker/output_metadata/receipt.tsv`) which you should save. It provides various IDs assigned to your donor, specimen, sample and file that make it much easier to find/audit later.
+
+NOTE: Uploads can take a long time and our feedback on the command line needs to be improved. I suggest using a tool like `dstat` to monitor network usage to ensure uploads are in progress.
+    
+## Download via Manifest
+
+This assumes the current working directory (`pwd`) has a manifest, like the ones you can download from http://ucsc-cgl.org/file_browser/.  The command below will then download the files to the current working directory.  
+
+NOTE: make sure you have enough space in `pwd`!!!
+
+    docker run --rm -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data quay.io/ucsc_cgl/core-client:1.0.0 redwood-download /dcc/data/manifest.tsv /dcc/data/

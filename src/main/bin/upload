@@ -22,7 +22,7 @@ cp $* ${upload}
 accessToken=${ACCESS_TOKEN}
 metadata_server_url=https://${REDWOOD_ENDPOINT}:8444
 storage_server_url=https://${REDWOOD_ENDPOINT}:5431
-trust_store_path=${DCC_HOME}/cert/devcacerts
+trust_store_path=${DCC_HOME}/cert/clientcacerts
 trust_store_pass=${UCSC_STORAGE_TRUSTSTORE_PASSWORD}
 
 # register upload
