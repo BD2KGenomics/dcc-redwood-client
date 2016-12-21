@@ -24,4 +24,4 @@ python spinnaker.py \
     --receipt-file ../data/spinnaker/receipt.tsv \
     --storage-client-path ${DCC_HOME} \
     --storage-access-token ${ACCESS_TOKEN} \
-    ../data/${tsv_file}
+    ${tsv_file}
