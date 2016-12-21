@@ -43,6 +43,8 @@ RUN pip install \
 
 RUN git clone -b release/1.0.0 --single-branch https://github.com/BD2KGenomics/dcc-spinnaker-client.git ${DCC_HOME}/dcc-spinnaker-client/
 
+RUN chmod a+x ${DCC_HOME}/bin/*
+
 #Set environment variables
 ENV PATH ${DCC_HOME}/bin:$PATH
 ENV REDWOOD_ENDPOINT storage.ucsc-cgl.org
