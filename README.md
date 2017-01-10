@@ -22,7 +22,7 @@ Look in _/dcc/ucsc-storage-client/conf/_ for further configuration options.
 ## Development
 Build docker image with:
 ```
-mvn && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t quay.io/ucsc_cgl/core-client:1.0.1 redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
+./mvnw && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t quay.io/ucsc_cgl/core-client:1.0.1 redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
 ```
 
 ## Upload via Spinnaker
