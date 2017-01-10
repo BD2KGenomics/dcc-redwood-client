@@ -1,15 +1,5 @@
 # Redwood Client
 
-## Interactive Usage
-```
-docker run --rm -e ACCESS_TOKEN=<your-access-token> \
--e REDWOOD_ENDPOINT=storage.ucsc-cgl.org \
--v `pwd`/my/data/dir:/data \
-quay.io/ucsc_cgl/core-client:1.0.1 bash
-$ download 047b9be1-c97a-5885-b882-d828ccbea56b /data
-$ upload /data/foo.txt /data/bar.txt
-```
-
 ## Configuration
 For normal usage, you should only need to modify environment variables.
 - ACCESS_TOKEN: your access token
@@ -46,3 +36,8 @@ This assumes the current working directory (`pwd`) has a manifest, like the ones
 NOTE: make sure you have enough space in `pwd`!!!
 
     docker run --rm -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data quay.io/ucsc_cgl/core-client:1.0.1 redwood-download /dcc/data/manifest.tsv /dcc/data/
+
+## Download by id
+To download a single file by it unique id (not bundle id):
+
+    docker run --rm -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=storage.ucsc-cgl.org -v `pwd`:/dcc/data quay.io/ucsc_cgl/core-client:1.0.1 download <object-id> /dcc/data/
