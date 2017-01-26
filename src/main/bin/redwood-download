@@ -1,24 +1,76 @@
 #!/bin/bash
 
-#
-# Usage: icgc-download.sh object-manifest output-dir
-#
-
 : "${DCC_HOME:?Need to set environment variable DCC_HOME}"
 : "${ACCESS_TOKEN:?Need to set environment variable ACCESS_TOKEN}"
 : "${REDWOOD_ENDPOINT:?Set environment variable REDWOOD_ENDPOINT to e.g. storage.ucsc-cgl.org}"
 : "${UCSC_STORAGE_TRUSTSTORE_PASSWORD:?Need to set environment variable UCSC_STORAGE_TRUSTSTORE_PASSWORD}"
 
-# config
-accessToken=${ACCESS_TOKEN}
-metadata_server_url=https://${REDWOOD_ENDPOINT}:8444
-storage_server_url=https://${REDWOOD_ENDPOINT}:5431
-trust_store_path=${DCC_HOME}/cert/clientcacerts
-trust_store_pass=${UCSC_STORAGE_TRUSTSTORE_PASSWORD}
+script_name=`basename $0`
 
-# setup
-object=$1
-download=$2
+function log {
+  logf "$1\n"
+}
 
-#download files in a manifest
-java -Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dmetadata.url=${metadata_server_url} -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar download --output-dir ${download} --output-layout bundle --manifest ${object} --force
+function logf {
+  if [ $dev -ne 0 ]; then
+    printf "${script_name}: $@" >&2
+  fi
+}
+
+function help {
+  cat <<EOF
+Usage: ${script_name} [-h] [-d] [-p] manifest.txt output_dir
+
+Download files via manifest from Redwood.
+
+Options
+  -h show this help message
+  -d show debug output
+  -p use http to call server; disable https
+EOF
+}
+
+
+dev=0
+http=0
+
+while getopts ":hdp" opt; do
+  case $opt in
+    h)
+      help
+      exit
+      ;;
+    d)
+      dev=1
+      log "dev mode enabled"
+      ;;
+    p)
+      http=1
+      ;;
+    \?)
+      log "Invalid option: -$OPTARG"
+      ;;
+  esac
+done
+log "running ${script_name} with http=${http}, dev=${dev}"
+
+
+function main {
+  # config
+  [[ $http -eq 1 ]] && protocol='http://' || protocol='https://'
+  accessToken=${ACCESS_TOKEN}
+  metadata_server_url=${protocol}${REDWOOD_ENDPOINT}:8444
+  storage_server_url=${protocol}${REDWOOD_ENDPOINT}:5431
+  trust_store_path=${DCC_HOME}/cert/clientcacerts
+  trust_store_pass=${UCSC_STORAGE_TRUSTSTORE_PASSWORD}
+
+  # setup
+  object=$1
+  download=$2
+
+  # download files in a manifest
+  [[ $http -eq 1 ]] && ssl_opts='' || ssl_opts='-Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass}  -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false'
+  echo java -Dmetadata.url=${metadata_server_url} -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar download --output-dir ${download} --output-layout bundle --manifest ${object} --force
+}
+
+main
