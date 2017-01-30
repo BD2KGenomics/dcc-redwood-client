@@ -43,10 +43,5 @@
       <source>src/main/Dockerfile</source>
       <outputDirectory>.</outputDirectory>
     </file>
-    <file>
-      <source>${project.build.directory}/${artifactId}-${version}.jar</source>
-      <outputDirectory>lib</outputDirectory>
-      <destName>${artifactId}.jar</destName>
-    </file>
   </files>
 </assembly>

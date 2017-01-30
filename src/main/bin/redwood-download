@@ -8,7 +8,7 @@
 script_name=`basename $0`
 
 function log {
-  logf "$1\n"
+  logf "$*\n"
 }
 
 function logf {
@@ -52,6 +52,7 @@ while getopts ":hdp" opt; do
       ;;
   esac
 done
+shift "$((OPTIND - 1))"
 log "running ${script_name} with http=${http}, dev=${dev}"
 
 
@@ -59,8 +60,8 @@ function main {
   # config
   [[ $http -eq 1 ]] && protocol='http://' || protocol='https://'
   accessToken=${ACCESS_TOKEN}
-  metadata_server_url=${protocol}${REDWOOD_ENDPOINT}:8444
-  storage_server_url=${protocol}${REDWOOD_ENDPOINT}:5431
+  metadata_server_url=${protocol}metadata.${REDWOOD_ENDPOINT}
+  storage_server_url=${protocol}storage.${REDWOOD_ENDPOINT}
   trust_store_path=${DCC_HOME}/cert/clientcacerts
   trust_store_pass=${UCSC_STORAGE_TRUSTSTORE_PASSWORD}
 
@@ -73,4 +74,4 @@ function main {
   echo java -Dmetadata.url=${metadata_server_url} -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar download --output-dir ${download} --output-layout bundle --manifest ${object} --force
 }
 
-main
+main "$@"

@@ -15,6 +15,11 @@ Build docker image with:
 ./mvnw && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t quay.io/ucsc_cgl/core-client:1.0.1 redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
 ```
 
+Test against a local storage system instance:
+```
+docker run --rm -it --net=dev_default --link nginx:storage.ucsc-cgl.org --link nginx:metadata.ucsc-cgl.org -e ACCESS_TOKEN=a4136145-a459-4efe-89c8-80c402905785 -e REDWOOD_ENDPOINT=ucsc-cgl.org -v ~/data:/dcc/data quay.io/ucsc_cgl/core-client:1.0.1 bash
+```
+
 ## Upload via Spinnaker
 
 Create a manifest that links your metdata and data.  Your `manifest.tsv` should be a TSV based on this [template](https://docs.google.com/spreadsheets/d/13fqil92C-Evi-4cy_GTnzNMmrD0ssuSCx3-cveZ4k70/edit?usp=sharing).

@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:16.04
 MAINTAINER Carlos Espinosa <caaespin@ucsc.edu>
 
 # install oracle java
@@ -48,7 +48,7 @@ RUN cd ${DCC_HOME}/dcc-spinnaker-client/ && wget https://s3-us-west-2.amazonaws.
 # make everything runnable
 RUN chmod a+x ${DCC_HOME}/bin/*
 
-#Set environment variables
-ENV PATH ${DCC_HOME}/bin:$PATH
+# Set environment variables
+ENV PATH ${DCC_HOME}/bin:${DCC_HOME}/lib/dcc-metadata-client-0.0.16-SNAPSHOT/bin:${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/bin:$PATH
 ENV REDWOOD_ENDPOINT storage.ucsc-cgl.org
 ENV UCSC_STORAGE_TRUSTSTORE_PASSWORD=changeit

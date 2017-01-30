@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: "${DCC_HOME:?Set DCC_HOME to directory containing ucsc-storage-client}"
+: "${DCC_HOME:?Set DCC_HOME}"
 : "${ACCESS_TOKEN:?Need to set environment variable ACCESS_TOKEN}"
 : "${REDWOOD_ENDPOINT:?Need to set environment variable REDWOOD_ENDPOINT to e.g. storage.ucsc-cgl.org}"
 : "${UCSC_STORAGE_TRUSTSTORE_PASSWORD:?Need to set environment variable UCSC_STORAGE_TRUSTSTORE_PASSWORD}"
@@ -8,7 +8,7 @@
 script_name=`basename $0`
 
 function log {
-  logf "$1\n"
+  logf "$*\n"
 }
 
 function logf {
@@ -19,7 +19,7 @@ function logf {
 
 function help {
   cat <<EOF
-Usage: upload [-h] [-d] [-p] file...
+Usage: ${script_name} [-h] [-d] [-p] file...
 
 For internal use only (end users use Spinnaker). Uploads individual files to Redwood.
 
@@ -43,6 +43,7 @@ while getopts ":hdp" opt; do
     d)
       dev=1
       log "dev mode enabled"
+      set -x
       ;;
     p)
       http=1
@@ -52,39 +53,43 @@ while getopts ":hdp" opt; do
       ;;
   esac
 done
+shift "$((OPTIND - 1))"
 log "running ${script_name} with http=${http}, dev=${dev}"
 
 
 function main {
   # setup
   uuid=`uuidgen`
-  echo using tmp dir $uuid
-  upload=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`/upload/${uuid}
-  manifest=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`/manifest/${uuid}
+  log using uuid $uuid
+  tmproot=`mktemp -d 2>/dev/null`
+  upload=${tmproot}/upload/${uuid}
+  manifest=${tmproot}/manifest/${uuid}
   mkdir -p ${upload}
   mkdir -p ${manifest}
-  cp $* ${upload}
+  #cp $* ${upload}
+  for f in "$@"; do
+    ln -s `pwd`/$f ${upload}/`basename $f`
+  done
 
   # config
   [[ $http -eq 1 ]] && protocol='http://' || protocol='https://'
   accessToken=${ACCESS_TOKEN}
-  metadata_server_url=${protocol}${REDWOOD_ENDPOINT}:8444
-  storage_server_url=${protocol}${REDWOOD_ENDPOINT}:5431
+  metadata_server_url=${protocol}metadata.${REDWOOD_ENDPOINT}
+  storage_server_url=${protocol}storage.${REDWOOD_ENDPOINT}
   trust_store_path=${DCC_HOME}/cert/clientcacerts
   trust_store_pass=${UCSC_STORAGE_TRUSTSTORE_PASSWORD}
 
   # register upload
-  echo Registering upload:
+  log Registering upload:
   java -Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dserver.baseUrl=${metadata_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/dcc-metadata-client-0.0.16-SNAPSHOT/lib/dcc-metadata-client.jar -i ${upload} -o ${manifest} -m manifest.txt
 
   # perform upload
-  echo Performing upload:
+  log Performing upload:
   [[ $http -eq 1 ]] && ssl_opts='' || ssl_opts='-Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false'
   java -Dmetadata.url=${metadata_server_url} -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} ${ssl_opts} -jar ${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar upload --manifest ${manifest}/manifest.txt
 
   # cleanup
-  rm -r ${upload}
-  rm -r ${manifest}
+  rm -r ${tmproot}
 }
 
-main
+main "$@"

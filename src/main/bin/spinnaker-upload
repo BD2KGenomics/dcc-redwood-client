@@ -1,6 +1,6 @@
 #!/bin/bash
 
-: "${DCC_HOME:?Set DCC_HOME to directory containing ucsc-storage-client}"
+: "${DCC_HOME:?Set DCC_HOME}"
 : "${ACCESS_TOKEN:?Need to set environment variable ACCESS_TOKEN}"
 : "${REDWOOD_ENDPOINT:?Need to set environment variable REDWOOD_ENDPOINT to e.g. storage.ucsc-cgl.org}"
 : "${UCSC_STORAGE_TRUSTSTORE_PASSWORD:?Need to set environment variable UCSC_STORAGE_TRUSTSTORE_PASSWORD}"
@@ -9,7 +9,7 @@
 script_name=`basename $0`
 
 function log {
-  logf "$1\n"
+  logf "$*\n"
 }
 
 function logf {
@@ -53,6 +53,7 @@ while getopts ":hdp" opt; do
       ;;
   esac
 done
+shift "$((OPTIND - 1))"
 log "running ${script_name} with http=${http}, dev=${dev}"
 
 
@@ -60,8 +61,8 @@ function main {
   # config
   [[ $http -eq 1 ]] && protocol='http://' || protocol='https://'
   accessToken=${ACCESS_TOKEN}
-  metadata_server_url=${protocol}${REDWOOD_ENDPOINT}:8444
-  storage_server_url=${protocol}${REDWOOD_ENDPOINT}:5431
+  metadata_server_url=${protocol}metadata.${REDWOOD_ENDPOINT}
+  storage_server_url=${protocol}storage.${REDWOOD_ENDPOINT}
   tsv_file=$1
 
   # Go to the right directory and execute the script
@@ -77,4 +78,4 @@ function main {
     ${tsv_file}
 }
 
-main
+main "$@"
