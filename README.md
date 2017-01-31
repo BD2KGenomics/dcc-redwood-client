@@ -14,6 +14,7 @@ Build docker image with:
 ```
 ./mvnw && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t quay.io/ucsc_cgl/core-client:1.0.1 redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
 ```
+(Use the `-P prod` maven profile for prod builds)
 
 Test against a local storage system instance:
 ```

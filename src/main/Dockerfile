@@ -51,4 +51,3 @@ RUN chmod a+x ${DCC_HOME}/bin/*
 # Set environment variables
 ENV PATH ${DCC_HOME}/bin:${DCC_HOME}/lib/dcc-metadata-client-0.0.16-SNAPSHOT/bin:${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/bin:$PATH
 ENV REDWOOD_ENDPOINT storage.ucsc-cgl.org
-ENV UCSC_STORAGE_TRUSTSTORE_PASSWORD=changeit
