@@ -42,7 +42,9 @@ ADD cert ${DCC_HOME}/cert
 ADD lib ${DCC_HOME}/lib
 
 # install spinnaker
-RUN git clone -b release/1.0.0 --single-branch https://github.com/BD2KGenomics/dcc-spinnaker-client.git ${DCC_HOME}/dcc-spinnaker-client/
+#RUN git clone -b release/1.0.0 --single-branch https://github.com/BD2KGenomics/dcc-spinnaker-client.git ${DCC_HOME}/dcc-spinnaker-client/
+#Testing first on my forked repo
+RUN git clone -b release/1.0.0 --single-branch https://github.com/caaespin/dcc-spinnaker-client.git ${DCC_HOME}/dcc-spinnaker-client/
 RUN cd ${DCC_HOME}/dcc-spinnaker-client/ && wget https://s3-us-west-2.amazonaws.com/beni-dcc-storage-dev/20161216_ucsc-storage-client.tar.gz && tar zxf 20161216_ucsc-storage-client.tar.gz && rm -f 20161216_ucsc-storage-client.tar.gz
 
 # make everything runnable
