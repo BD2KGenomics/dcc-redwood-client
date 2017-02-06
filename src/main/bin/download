@@ -73,8 +73,8 @@ function main {
   download=$2
 
   # perform download
-  [[ $http -eq 1 ]] && ssl_opts='' || ssl_opts='-Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false'
-  echo java ${ssl_opts} -Dmetadata.url=${metadata_server_url} -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar download --output-dir ${download} --object-id ${object} --output-layout bundle
+  [[ $http -eq 1 ]] && ssl_opts="" || ssl_opts="-Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false"
+  java ${ssl_opts} -Dmetadata.url=${metadata_server_url} -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar download --output-dir ${download} --object-id ${object} --output-layout bundle
 }
 
-main
+main "$@"
