@@ -12,13 +12,13 @@ Look in _/dcc/ucsc-storage-client/conf/_ for further configuration options.
 ## Development
 Build docker image with:
 ```
-./mvnw && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t quay.io/ucsc_cgl/core-client:1.0.1 redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
+./mvnw && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t quay.io/ucsc_cgl/redwood-client:dev redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
 ```
 (Use the `-P prod` maven profile for prod builds)
 
 Test against a local storage system instance:
 ```
-docker run --rm -it --net=dev_default --link nginx:storage.ucsc-cgl.org --link nginx:metadata.ucsc-cgl.org -e ACCESS_TOKEN=a4136145-a459-4efe-89c8-80c402905785 -e REDWOOD_ENDPOINT=ucsc-cgl.org -v ~/data:/dcc/data quay.io/ucsc_cgl/core-client:1.0.1 bash
+docker run --rm -it --net=redwood_default --link redwood-nginx:storage.redwood.io --link redwood-nginx:metadata.redwood.io -e ACCESS_TOKEN=a4136145-a459-4efe-89c8-80c402905785 -e REDWOOD_ENDPOINT=redwood-client:dev -v ~/data:/dcc/data quay.io/ucsc_cgl/redwood-client:dev bash
 ```
 
 ## Upload via Spinnaker
