@@ -38,6 +38,8 @@ RUN pip install \
 ENV DCC_HOME /dcc
 WORKDIR ${DCC_HOME}
 RUN mkdir -p ${DCC_HOME}
+#Making directory that contains 
+RUN mkdir ${DCC_HOME}/token
 ADD bin ${DCC_HOME}/bin
 ADD cert ${DCC_HOME}/cert
 ADD lib ${DCC_HOME}/lib
