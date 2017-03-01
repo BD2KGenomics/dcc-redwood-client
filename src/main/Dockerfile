@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y --force-yes \
     git \
     uuid-runtime
 
-RUN easy_install pip
+RUN apt-get install python-pip python-dev build-essential
+RUN pip install --upgrade pip
 
 RUN pip install \
     jsonschema \
@@ -31,17 +32,20 @@ RUN pip install \
     json-spec \
     elasticsearch \
     semver \
-    luigi
+    luigi==2.5.0
 
 # add dcc files
 ENV DCC_HOME /dcc
 WORKDIR ${DCC_HOME}
 RUN mkdir -p ${DCC_HOME}
+#Making directory that contains 
+RUN mkdir ${DCC_HOME}/token
 ADD bin ${DCC_HOME}/bin
 ADD cert ${DCC_HOME}/cert
 ADD lib ${DCC_HOME}/lib
 
 # install spinnaker
+#RUN git clone -b release/1.0.0 --single-branch https://github.com/BD2KGenomics/dcc-spinnaker-client.git ${DCC_HOME}/dcc-spinnaker-client/
 RUN git clone -b release/1.0.0 --single-branch https://github.com/BD2KGenomics/dcc-spinnaker-client.git ${DCC_HOME}/dcc-spinnaker-client/
 RUN cd ${DCC_HOME}/dcc-spinnaker-client/ && wget https://s3-us-west-2.amazonaws.com/beni-dcc-storage-dev/20161216_ucsc-storage-client.tar.gz && tar zxf 20161216_ucsc-storage-client.tar.gz && rm -f 20161216_ucsc-storage-client.tar.gz
 
