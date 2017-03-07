@@ -1,9 +1,5 @@
 #!/bin/bash
-
-: "${DCC_HOME:?Need to set environment variable DCC_HOME}"
-: "${ACCESS_TOKEN:?Need to set environment variable ACCESS_TOKEN}"
-: "${REDWOOD_ENDPOINT:?Set environment variable REDWOOD_ENDPOINT to e.g. storage.ucsc-cgl.org}"
-
+set -e
 script_name=`basename $0`
 
 function log {
@@ -11,40 +7,40 @@ function log {
 }
 
 function logf {
-  if [ $dev -ne 0 ]; then
+  if [ $v -ne 0 ]; then
     printf "${script_name}: $@" >&2
   fi
 }
 
 function help {
   cat <<EOF
-Usage: ${script_name} [-h] [-d] [-p] id output_dir
+Usage: ${script_name} [-h] [-d] [-k] id output_dir
 
 Download file by id from Redwood.
 
 Options
   -h show this help message
-  -d show debug output
-  -p use http to call server; disable https
+  -v show verbose output
+  -k use http to call server; disable https
 EOF
 }
 
 
-dev=0
+v=0
 http=0
 
-while getopts ":hdp" opt; do
+while getopts ":hkv" opt; do
   case $opt in
     h)
       help
       exit
       ;;
-    d)
-      dev=1
-      log "dev mode enabled"
-      ;;
-    p)
+    k)
       http=1
+      ;;
+    v)
+      v=1
+      log "verbose output enabled"
       ;;
     \?)
       log "Invalid option: -$OPTARG"
@@ -52,25 +48,16 @@ while getopts ":hdp" opt; do
   esac
 done
 shift "$((OPTIND - 1))"
-log "running ${script_name} with http=${http}, dev=${dev}"
+log "running ${script_name} with http=${http}, verbose=${v}"
 
 
 function main {
-  # config
-  [[ $http -eq 1 ]] && protocol='http://' || protocol='https://'
-  accessToken=${ACCESS_TOKEN}
-  metadata_server_url=${protocol}metadata.${REDWOOD_ENDPOINT}
-  storage_server_url=${protocol}storage.${REDWOOD_ENDPOINT}
-  trust_store_path=${DCC_HOME}/cert/cacerts
-  trust_store_pass=password
-
   # setup
   object=$1
   download=$2
-
+  
   # perform download
-  [[ $http -eq 1 ]] && ssl_opts="" || ssl_opts="-Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false"
-  java ${ssl_opts} -Dmetadata.url=${metadata_server_url} -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar download --output-dir ${download} --object-id ${object} --output-layout bundle
+  icgc-storage-client download --object-id ${object} --output-dir ${download} --output-layout bundle
 }
 
 main "$@"

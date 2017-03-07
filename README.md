@@ -18,7 +18,7 @@ Build docker image with:
 
 Test against a local storage system instance:
 ```
-docker run --rm -it --net=redwood_default --link redwood-nginx:storage.redwood.io --link redwood-nginx:metadata.redwood.io -e ACCESS_TOKEN=a4136145-a459-4efe-89c8-80c402905785 -e REDWOOD_ENDPOINT=redwood-client:dev -v ~/data:/dcc/data quay.io/ucsc_cgl/redwood-client:dev bash
+docker run --rm -it --net=redwood_default --link redwood-nginx:storage.redwood.io --link redwood-nginx:metadata.redwood.io -e ACCESS_TOKEN=<access_token> -e REDWOOD_ENDPOINT=redwood.io -v ~/data:/dcc/data quay.io/ucsc_cgl/redwood-client:dev bash
 ```
 
 ## Upload via Spinnaker

@@ -1,9 +1,5 @@
 #!/bin/bash
-
-: "${DCC_HOME:?Set DCC_HOME}"
-: "${REDWOOD_ENDPOINT:?Need to set environment variable REDWOOD_ENDPOINT to e.g. storage.ucsc-cgl.org}"
-
-
+set -e
 script_name=`basename $0`
 
 function log {
