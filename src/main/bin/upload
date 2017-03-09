@@ -80,7 +80,7 @@ function main {
   dcc-metadata-client -m ${manifest} -o ${tmproot}
 
   #perform upload
-  icgc-storage-client ${ssl_opts} upload --verify-connection false --manifest ${tmproot}/${gnos_id}
+  icgc-storage-client ${ssl_opts} upload --manifest ${tmproot}/${gnos_id}
 }
 
 main "$@"
