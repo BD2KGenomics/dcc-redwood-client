@@ -19,6 +19,12 @@
     
   <build>
     <defaultGoal>package</defaultGoal>
+    <resources>
+      <resource>
+        <directory>src/main/assembly</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
@@ -40,5 +46,23 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>prod</id>
+      <properties>
+        <client.truststore>src/main/cert/cacerts</client.truststore>
+      </properties>
+    </profile>
+    <profile>
+      <id>dev</id>
+      <properties>
+        <client.truststore>src/main/cert/devcacerts</client.truststore>
+      </properties>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+  </profiles>
 
 </project>

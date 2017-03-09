@@ -1,14 +1,9 @@
 #!/bin/bash
-
-: "${DCC_HOME:?Set DCC_HOME to directory containing ucsc-storage-client}"
-: "${REDWOOD_ENDPOINT:?Need to set environment variable REDWOOD_ENDPOINT to e.g. storage.ucsc-cgl.org}"
-
-
-
+set -e
 script_name=`basename $0`
 
 function log {
-  logf "$1\n"
+  logf "$*\n"
 }
 
 function logf {
@@ -61,6 +56,7 @@ function main {
   [[ $http -eq 1 ]] && protocol='http://' || protocol='https://'
   #Seeing whether the access token is present as either a file or a by itself
   accessToken=${ACCESS_TOKEN}
+
   if [[ -z "$accessToken" ]]
   then accessToken=$(cat token/${ACCESS_TOKEN_FILE})
     if [[ -z "$accessToken" ]]
@@ -70,8 +66,9 @@ function main {
   else echo "Using ACCESS_TOKEN"
   fi
 
-  metadata_server_url=${protocol}${REDWOOD_ENDPOINT}:8444
-  storage_server_url=${protocol}${REDWOOD_ENDPOINT}:5431
+  metadata_server_url=${protocol}metadata.${REDWOOD_ENDPOINT}
+  storage_server_url=${protocol}storage.${REDWOOD_ENDPOINT}
+
   tsv_file=$1
 
   # Go to the right directory and execute the script

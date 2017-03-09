@@ -1,58 +1,35 @@
-FROM ubuntu:latest
-MAINTAINER Carlos Espinosa <caaespin@ucsc.edu>
+FROM ubuntu:16.04
 
-# install oracle java
+# dependencies
 RUN apt-get update
+RUN apt-get install -y uuid-runtime
+
+# java
 RUN apt-get install -y software-properties-common
 RUN add-apt-repository -y ppa:webupd8team/java
 RUN apt-get update
 RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
 RUN apt-get install -y oracle-java8-installer
-
-#Setting up the spinnaker client
-RUN apt-get update && apt-get install -y --force-yes \
-    python-dev \
-    python-pip \
-    build-essential \
-    libxml2-dev \
-    libxslt-dev \
-    lib32z1-dev \
-    python-setuptools \
-    git \
-    uuid-runtime
-
-RUN apt-get install python-pip python-dev build-essential
-RUN pip install --upgrade pip
-
-RUN pip install \
-    jsonschema \
-    jsonmerge \
-    openpyxl \
-    sets \
-    json-spec \
-    elasticsearch \
-    semver \
-    luigi==2.5.0
+# update default truststore
+ADD cert/cacerts /usr/lib/jvm/java-8-oracle/jre/lib/security/cacerts
 
 # add dcc files
 ENV DCC_HOME /dcc
+ENV REDWOOD_CLIENT_HOME ${DCC_HOME}/dcc-redwood-client
 WORKDIR ${DCC_HOME}
-RUN mkdir -p ${DCC_HOME}
-#Making directory that contains 
-RUN mkdir ${DCC_HOME}/token
-ADD bin ${DCC_HOME}/bin
-ADD cert ${DCC_HOME}/cert
-ADD lib ${DCC_HOME}/lib
+RUN mkdir -p ${REDWOOD_CLIENT_HOME}
 
-# install spinnaker
-#RUN git clone -b release/1.0.0 --single-branch https://github.com/BD2KGenomics/dcc-spinnaker-client.git ${DCC_HOME}/dcc-spinnaker-client/
-RUN git clone -b release/1.0.0 --single-branch https://github.com/BD2KGenomics/dcc-spinnaker-client.git ${DCC_HOME}/dcc-spinnaker-client/
-RUN cd ${DCC_HOME}/dcc-spinnaker-client/ && wget https://s3-us-west-2.amazonaws.com/beni-dcc-storage-dev/20161216_ucsc-storage-client.tar.gz && tar zxf 20161216_ucsc-storage-client.tar.gz && rm -f 20161216_ucsc-storage-client.tar.gz
+RUN mkdir ${REDWOOD_CLIENT_HOME}/token
+ADD bin ${REDWOOD_CLIENT_HOME}/bin
+ADD cert ${REDWOOD_CLIENT_HOME}/cert
+ADD lib ${REDWOOD_CLIENT_HOME}/lib
+ADD maven2 ${REDWOOD_CLIENT_HOME}/maven2
+ADD conf ${REDWOOD_CLIENT_HOME}/conf
 
-# make everything runnable
-RUN chmod a+x ${DCC_HOME}/bin/*
+RUN ln -s ${REDWOOD_CLIENT_HOME}/lib/icgc-storage-client-1.0.24-SNAPSHOT/ ${DCC_HOME}/icgc-storage-client
+RUN ln -s ${REDWOOD_CLIENT_HOME}/lib/dcc-metadata-client-0.0.23-SNAPSHOT/ ${DCC_HOME}/dcc-metadata-client
 
-#Set environment variables
-ENV PATH ${DCC_HOME}/bin:$PATH
-ENV REDWOOD_ENDPOINT storage.ucsc-cgl.org
-ENV UCSC_STORAGE_TRUSTSTORE_PASSWORD=changeit
+# set environment variables
+ENV PATH ${REDWOOD_CLIENT_HOME}/bin:${DCC_HOME}/dcc-metadata-client/bin:${DCC_HOME}/icgc-storage-client/bin:${PATH}
+ENV SPRING_PROFILES_ACTIVE redwood
+ENV REDWOOD_ENDPOINT redwood.io

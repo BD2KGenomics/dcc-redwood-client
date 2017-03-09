@@ -1,13 +1,9 @@
 #!/bin/bash
-
-: "${DCC_HOME:?Need to set environment variable DCC_HOME}"
-: "${REDWOOD_ENDPOINT:?Set environment variable REDWOOD_ENDPOINT to e.g. storage.ucsc-cgl.org}"
-: "${UCSC_STORAGE_TRUSTSTORE_PASSWORD:?Need to set environment variable UCSC_STORAGE_TRUSTSTORE_PASSWORD}"
-
+set -e
 script_name=`basename $0`
 
 function log {
-  logf "$1\n"
+  logf "$*\n"
 }
 
 function logf {
@@ -18,14 +14,14 @@ function logf {
 
 function help {
   cat <<EOF
-Usage: ${script_name} [-h] [-d] [-p] manifest.txt output_dir
+Usage: ${script_name} [-h] [-k] [-v] manifest.txt output_dir
 
 Download files via manifest from Redwood.
 
 Options
   -h show this help message
-  -d show debug output
-  -p use http to call server; disable https
+  -v show verbose output
+  -k use http to call server; disable https
 EOF
 }
 
@@ -33,17 +29,17 @@ EOF
 dev=0
 http=0
 
-while getopts ":hdp" opt; do
+while getopts ":hvk" opt; do
   case $opt in
     h)
       help
       exit
       ;;
-    d)
-      dev=1
-      log "dev mode enabled"
+    v)
+      verbose=1
+      log "verbose output enabled"
       ;;
-    p)
+    k)
       http=1
       ;;
     \?)
@@ -51,28 +47,11 @@ while getopts ":hdp" opt; do
       ;;
   esac
 done
-log "running ${script_name} with http=${http}, dev=${dev}"
+shift "$((OPTIND - 1))"
+log "running ${script_name} with http=${http}, verbose=${verbose}"
 
 
 function main {
-  # config
-  [[ $http -eq 1 ]] && protocol='http://' || protocol='https://'
-  #Seeing whether the access token is present as either a file or a by itself
-  accessToken=${ACCESS_TOKEN}
-  if [[ -z "$accessToken" ]]
-  then accessToken=$(cat token/${ACCESS_TOKEN_FILE})
-    if [[ -z "$accessToken" ]]
-    then echo "Error: Need to set environment variable ACCESS_TOKEN or ACCESS_TOKEN_FILE" && exit 1
-    else echo "Using ACCESS_TOKEN_FILE"
-    fi
-  else echo "Using ACCESS_TOKEN"
-  fi
-
-  metadata_server_url=${protocol}${REDWOOD_ENDPOINT}:8444
-  storage_server_url=${protocol}${REDWOOD_ENDPOINT}:5431
-  trust_store_path=${DCC_HOME}/cert/clientcacerts
-  trust_store_pass=${UCSC_STORAGE_TRUSTSTORE_PASSWORD}
-
   # setup
   object=$1
   download=$2
@@ -84,16 +63,15 @@ function main {
   awk 'BEGIN {FS="\t";OFS="\t"}; NR==1{for(i=1;i<=NF;i++){if($i=="Upload File ID" || $i=="File ID"){c=i;break}} t=$3 ; $3=$c; $c=t; print } NR>1{t=$3 ; $3=$c; $c=t; print}' ${object} | cut -f1-11  > data/temp.tsv
   
   # download files in a manifest
-  [[ $http -eq 1 ]] && ssl_opts='' || ssl_opts="-Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass}  -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false"
-  java ${ssl_opts}  -Dmetadata.url=${metadata_server_url} -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar download --output-dir ${download} --output-layout bundle --manifest data/temp.tsv  --force
+  icgc-storage-client download --output-dir ${download} --output-layout bundle --manifest data/temp.tsv --force
 
   rm data/temp.tsv
-  #Change ownership of the files in data/ from root to the current user.
+
+  # change ownership of the files in data/ from root to the current user.
   user=$(stat -c '%u:%g' data/)
   if [[ ! -z "$user" ]]
   then  chown -R ${user} data/
   fi
 }
-
 
 main "$@"
