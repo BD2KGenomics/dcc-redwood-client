@@ -31,7 +31,7 @@ EOF
 verbose=0
 http=1
 access=controlled
-project_code=dev
+project_code=DEV
 while getopts ":hkop:v" opt; do
   case $opt in
     h)
