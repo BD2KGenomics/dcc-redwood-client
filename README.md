@@ -22,7 +22,7 @@ For developing the redwood-client
 ### Development
 Build docker image with:
 ```
-./mvnw && tar xf target/redwood-client-1.0.1-SNAPSHOT-dist.tar.gz && docker build -t quay.io/ucsc_cgl/redwood-client:dev redwood-client-1.0.1-SNAPSHOT; rm -r redwood-client-1.0.1-SNAPSHOT
+./mvnw
 ```
 (Use the `-P prod` maven profile for prod builds)
 

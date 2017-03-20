@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ucsc.cgl</groupId>
   <artifactId>redwood-client</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.1.0</version>
 
   <name>${project.artifactId}</name>
   <description>${project.name}</description>
@@ -18,7 +18,7 @@
   </properties>
     
   <build>
-    <defaultGoal>package</defaultGoal>
+    <defaultGoal>install</defaultGoal>
     <resources>
       <resource>
         <directory>src/main/assembly</directory>
@@ -41,6 +41,26 @@
             <goals>
               <goal>single</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.4.0</version>
+        <executions>
+          <execution>
+            <id>build-docker-image</id>
+            <phase>install</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>scripts/build_docker_image.sh</executable>
+              <arguments>
+                <commandlineArgs>${project.version}</commandlineArgs>
+              </arguments>
+            </configuration>
           </execution>
         </executions>
       </plugin>
