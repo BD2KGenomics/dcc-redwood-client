@@ -1,38 +1,86 @@
 #!/bin/bash
-set -x
-#
-# Usage: ucsc-upload.sh dataFile...
-#
+set -e
+script_name=`basename $0`
 
-: "${DCC_HOME:?Set DCC_HOME to directory containing ucsc-storage-client}"
-: "${ACCESS_TOKEN:?Need to set environment variable ACCESS_TOKEN}"
-: "${REDWOOD_ENDPOINT:?Need to set environment variable REDWOOD_ENDPOINT to e.g. storage.ucsc-cgl.org}"
-: "${UCSC_STORAGE_TRUSTSTORE_PASSWORD:?Need to set environment variable UCSC_STORAGE_TRUSTSTORE_PASSWORD}"
+function log {
+  logf "$*\n"
+}
 
-# setup
-uuid=`uuidgen`
-echo using tmp dir $uuid
-upload=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`/upload/${uuid}
-manifest=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`/manifest/${uuid}
-mkdir -p ${upload}
-mkdir -p ${manifest}
-cp $* ${upload}
+function logf {
+  if [ $verbose -ne 0 ]; then
+    printf "${script_name}: $@" >&2
+  fi
+}
 
-# config
-accessToken=${ACCESS_TOKEN}
-metadata_server_url=https://${REDWOOD_ENDPOINT}:8444
-storage_server_url=https://${REDWOOD_ENDPOINT}:5431
-trust_store_path=${DCC_HOME}/ucsc-storage-client/conf/cacerts
-trust_store_pass=${UCSC_STORAGE_TRUSTSTORE_PASSWORD}
+function help {
+  cat <<EOF
+Usage: ${script_name} [-h] [-k] [-o] [-p] [-v] file...
 
-# register upload
-echo Registering upload:
-java -Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dserver.baseUrl=${metadata_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/ucsc-storage-client/lib/dcc-metadata-client-0.0.16-SNAPSHOT/lib/dcc-metadata-client.jar -i ${upload} -o ${manifest} -m manifest.txt
+For internal use only (end users use Spinnaker). Uploads individual files to Redwood.
 
-# perform upload
-echo Performing upload:
-java -Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dmetadata.url=${metadata_server_url} -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/ucsc-storage-client/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar upload --manifest ${manifest}/manifest.txt
+Options
+  -h show this help message
+  -k use http to call server; disable https
+  -p project_code to upload files under
+  -o upload files with 'open' access instead of 'controlled'
+  -v show verbose output
+EOF
+}
 
-# cleanup
-rm -r ${upload}
-rm -r ${manifest}
+
+verbose=0
+http=1
+access=controlled
+project_code=DEV
+while getopts ":hkop:v" opt; do
+  case $opt in
+    h)
+      help
+      exit
+      ;;
+    k)
+      http=0
+      ;;
+    o)
+      access=open
+      ;;
+    p)
+      project_code=${OPTARG}
+      ;;
+    v)
+      verbose=1
+      log "verbose mode enabled"
+      set -x
+      ;;
+    \?)
+      log "Invalid option: -$OPTARG"
+      ;;
+  esac
+done
+shift "$((OPTIND - 1))"
+log "running ${script_name} with http=${http}, verbose=${v}, project_code=${project_code}"
+
+
+function main {
+  # setup
+  gnos_id=`uuidgen`
+  log using gnos_id ${gnos_id}
+  
+  tmproot=`mktemp -d 2>/dev/null`
+  manifest=${tmproot}/registration.txt
+
+  # generate registration manifest
+  printf 'gnos_id\tprogram_code\tfilename\tmd5\taccess\n' > ${manifest}
+  for f in "$@"; do
+    printf '%s\t%s\t%s\t%s\t%s\n' ${gnos_id} ${project_code} $f \
+           $(md5sum $f | cut -d' ' -f 1) $access >> ${manifest}
+  done
+
+  # register upload
+  dcc-metadata-client -m ${manifest} -o ${tmproot}
+
+  #perform upload
+  icgc-storage-client ${ssl_opts} upload --manifest ${tmproot}/${gnos_id}
+}
+
+main "$@"

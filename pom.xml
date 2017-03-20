@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.ucsc.cgl</groupId>
   <artifactId>redwood-client</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.1.0</version>
 
   <name>${project.artifactId}</name>
   <description>${project.name}</description>
@@ -18,9 +18,22 @@
   </properties>
     
   <build>
+    <defaultGoal>install</defaultGoal>
+    <resources>
+      <resource>
+        <directory>src/main/assembly</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <attach>${package.attach}</attach>
+          <descriptors>
+            <descriptor>src/main/assembly/bin.xml</descriptor>
+          </descriptors>
+        </configuration>
         <executions>
           <execution>
             <id>create-dist</id>
@@ -28,16 +41,48 @@
             <goals>
               <goal>single</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>1.4.0</version>
+        <executions>
+          <execution>
+            <id>build-docker-image</id>
+            <phase>install</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
             <configuration>
-              <attach>${package.attach}</attach>
-              <descriptors>
-                <descriptor>src/main/assembly/bin.xml</descriptor>
-              </descriptors>
+              <executable>scripts/build_docker_image.sh</executable>
+              <arguments>
+                <commandlineArgs>${project.version}</commandlineArgs>
+              </arguments>
             </configuration>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>prod</id>
+      <properties>
+        <client.truststore>src/main/cert/cacerts</client.truststore>
+      </properties>
+    </profile>
+    <profile>
+      <id>dev</id>
+      <properties>
+        <client.truststore>src/main/cert/devcacerts</client.truststore>
+      </properties>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+  </profiles>
 
 </project>

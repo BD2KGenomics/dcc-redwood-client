@@ -1,24 +1,63 @@
 #!/bin/bash
+set -e
+script_name=`basename $0`
 
-#
-# Usage: icgc-download.sh object-id output-dir
-#
+function log {
+  logf "$*\n"
+}
 
-: "${DCC_HOME:?Need to set environment variable DCC_HOME}"
-: "${ACCESS_TOKEN:?Need to set environment variable ACCESS_TOKEN}"
-: "${REDWOOD_ENDPOINT:?Set environment variable REDWOOD_ENDPOINT to e.g. storage.ucsc-cgl.org}"
-: "${UCSC_STORAGE_TRUSTSTORE_PASSWORD:?Need to set environment variable UCSC_STORAGE_TRUSTSTORE_PASSWORD}"
+function logf {
+  if [ $v -ne 0 ]; then
+    printf "${script_name}: $@" >&2
+  fi
+}
 
-# config
-accessToken=${ACCESS_TOKEN}
-metadata_server_url=https://${REDWOOD_ENDPOINT}:8444
-storage_server_url=https://${REDWOOD_ENDPOINT}:5431
-trust_store_path=${DCC_HOME}/ucsc-storage-client/conf/cacerts
-trust_store_pass=${UCSC_STORAGE_TRUSTSTORE_PASSWORD}
+function help {
+  cat <<EOF
+Usage: ${script_name} [-h] [-d] [-k] id output_dir
 
-# setup
-object=$1
-download=$2
+Download file by id from Redwood.
 
-# perform download
-java -Djavax.net.ssl.trustStore=${trust_store_path} -Djavax.net.ssl.trustStorePassword=${trust_store_pass} -Dmetadata.url=${metadata_server_url} -Dmetadata.ssl.enabled=true -Dclient.ssl.custom=false -Dstorage.url=${storage_server_url} -DaccessToken=${accessToken} -jar ${DCC_HOME}/ucsc-storage-client/lib/icgc-storage-client-1.0.14-SNAPSHOT/lib/icgc-storage-client.jar download --output-dir ${download} --object-id ${object} --output-layout bundle
+Options
+  -h show this help message
+  -v show verbose output
+  -k use http to call server; disable https
+EOF
+}
+
+
+v=0
+http=0
+
+while getopts ":hkv" opt; do
+  case $opt in
+    h)
+      help
+      exit
+      ;;
+    k)
+      http=1
+      ;;
+    v)
+      v=1
+      log "verbose output enabled"
+      ;;
+    \?)
+      log "Invalid option: -$OPTARG"
+      ;;
+  esac
+done
+shift "$((OPTIND - 1))"
+log "running ${script_name} with http=${http}, verbose=${v}"
+
+
+function main {
+  # setup
+  object=$1
+  download=$2
+  
+  # perform download
+  icgc-storage-client download --object-id ${object} --output-dir ${download} --output-layout bundle
+}
+
+main "$@"

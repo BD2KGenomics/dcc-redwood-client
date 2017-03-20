@@ -1,0 +1,77 @@
+#!/bin/bash
+set -e
+script_name=`basename $0`
+
+function log {
+  logf "$*\n"
+}
+
+function logf {
+  if [ $dev -ne 0 ]; then
+    printf "${script_name}: $@" >&2
+  fi
+}
+
+function help {
+  cat <<EOF
+Usage: ${script_name} [-h] [-k] [-v] manifest.txt output_dir
+
+Download files via manifest from Redwood.
+
+Options
+  -h show this help message
+  -v show verbose output
+  -k use http to call server; disable https
+EOF
+}
+
+
+dev=0
+http=0
+
+while getopts ":hvk" opt; do
+  case $opt in
+    h)
+      help
+      exit
+      ;;
+    v)
+      verbose=1
+      log "verbose output enabled"
+      ;;
+    k)
+      http=1
+      ;;
+    \?)
+      log "Invalid option: -$OPTARG"
+      ;;
+  esac
+done
+shift "$((OPTIND - 1))"
+log "running ${script_name} with http=${http}, verbose=${verbose}"
+
+
+function main {
+  # setup
+  object=$1
+  download=$2
+
+  #Modify the object so that it can be used with the download script. That way you don't have to worry about the format.
+  #Use 'awk'; example: awk 'BEGIN {FS="\t";OFS="\t"}; { t=$1 ; $1=$3; $3=t; print $1, $2, $3}' manifest.tsv > test.tsv 
+  #This will first swap column 1 with column 3 and  output the first three colums to test. 
+  #awk 'BEGIN {FS="\t";OFS="\t"}; { t=$3 ; $3=$17; $17=t; print}' ${object} | cut -f1-11  > data/temp.tsv
+  awk 'BEGIN {FS="\t";OFS="\t"}; NR==1{for(i=1;i<=NF;i++){if($i=="Upload File ID" || $i=="File ID"){c=i;break}} t=$3 ; $3=$c; $c=t; print } NR>1{t=$3 ; $3=$c; $c=t; print}' ${object} | cut -f1-11  > data/temp.tsv
+  
+  # download files in a manifest
+  icgc-storage-client download --output-dir ${download} --output-layout bundle --manifest data/temp.tsv --force
+
+  rm data/temp.tsv
+
+  # change ownership of the files in data/ from root to the current user.
+  user=$(stat -c '%u:%g' data/)
+  if [[ ! -z "$user" ]]
+  then  chown -R ${user} data/
+  fi
+}
+
+main "$@"
