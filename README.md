@@ -33,7 +33,7 @@ docker run --rm -it --net=redwood_default --link redwood-nginx:storage.redwood.i
 
 _Tip:_ From the _dcc-ops/redwood_ directory you can create an access token and launch the client in one line:
 ```
-docker run --rm -it --net=redwood_default --link redwood-nginx:storage.redwood.io --link redwood-nginx:metadata.redwood.io -e ACCESS_TOKEN=$(scripts/createAccessToken.sh) -v ~/data:/dcc/data quay.io/ucsc_cgl/redwood-client:1.1.1-SNAPSHOT bash
+docker run --rm -it --net=redwood_default --link redwood-nginx:storage.redwood.io --link redwood-nginx:metadata.redwood.io -e ACCESS_TOKEN=$(scripts/createAccessToken.sh) -v ~/data:/dcc/data quay.io/ucsc_cgl/redwood-client:1.1.2-SNAPSHOT bash
 ```
 
 ### Release
