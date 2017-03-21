@@ -9,9 +9,9 @@ Download the config file and edit it to specify your redwood access token.
 wget https://raw.githubusercontent.com/BD2KGenomics/dcc-redwood-client/develop/src/main/conf/application-redwood.properties
 ```
 
-Now you can invoke the client (or derived clients) by mounting in the config file as a volume as specifying the REDWOOD_ENDPOINT environment variable:
+Now you can invoke the client (or derived clients) by mounting in the config file as a volume and specifying the REDWOOD_ENDPOINT environment variable:
 ```
-docker run -it -e ACCESS_TOKEN=<access_token> -v $(pwd)/application-redwood.properties:/dcc/dcc-redwood-client/conf/application-redwood.properties -v ~/data:/dcc/data quay.io/ucsc_cgl/redwood-client:1.1.0 bash
+docker run -it -e REDWOOD_ENDPOINT=<redwood_endpoint> -v $(pwd)/application-redwood.properties:/dcc/dcc-redwood-client/conf/application-redwood.properties -v ~/data:/dcc/data quay.io/ucsc_cgl/redwood-client:1.1.0 bash
 ```
 
 Note: you can also specify `-e ACCESS_TOKEN=<your-access-token>` when you invoke `docker run` instead of using the config file (as long as you're on a private machine).

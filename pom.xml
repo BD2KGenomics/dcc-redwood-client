@@ -37,7 +37,7 @@
         <executions>
           <execution>
             <id>create-dist</id>
-            <phase>package</phase>
+            <phase>install</phase>
             <goals>
               <goal>single</goal>
             </goals>
