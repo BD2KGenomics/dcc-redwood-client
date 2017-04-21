@@ -20,15 +20,15 @@ Note: you can also specify `-e ACCESS_TOKEN=<your-access-token>` when you invoke
 The redwood client is released as the `quay.io/ucsc_cgl/redwood-client` docker image.
 
 The following commands are exposed (help commands shown):
-`upload -h` upload a set of files
-`download -h` download individual files
-`redwood-download -h` download via manifest
-`icgc-storage-client help` underlying storage client
-`dcc-metadata-client help` underlying metadata client
+- `upload -h` upload a set of files
+- `download -h` download individual files
+- `redwood-download -h` download via manifest
+- `icgc-storage-client help` underlying storage client
+- `dcc-metadata-client help` underlying metadata client
 
 Configuration on the underlying igcg clients can be set via (from highest to lowest precedence):
-`/dcc/dcc-redwood-client/conf/application-redwood.properties` java
-`REDWOOD_PROPERTIES` or `ACCESS_TOKEN` environment variables
+- `/dcc/dcc-redwood-client/conf/application-redwood.properties` java properties file
+- `REDWOOD_PROPERTIES` or `ACCESS_TOKEN` environment variables
 
 ## For Developers
 For developing the redwood-client
