@@ -28,7 +28,8 @@ The following commands are exposed (help commands shown):
 
 Configuration on the underlying igcg clients can be set via (from highest to lowest precedence):
 - `/dcc/dcc-redwood-client/conf/application-redwood.properties` java properties file
-- `REDWOOD_PROPERTIES` or `ACCESS_TOKEN` environment variables
+- `REDWOOD_PROPERTIES`, `ACCESS_TOKEN`, and `REDWOOD_LOG_DIR` environment variables
+- Java system properties specified in the JAVA_OPTS environment variable
 
 ## For Developers
 Please update the [change log](CHANGELOG.md) to reflect each user-facing change you make
