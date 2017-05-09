@@ -17,11 +17,13 @@ translation authors keep things up-to-date.
 
 ## [1.1.1] - 2017-03-20
 ### Changed
-- documentation
+- documentation only
 
 ## [1.1.0] - 2017-03-19
 ### Added
 - dcc-ops/redwood compatibility
+- expose `icgc-storage-client` and `dcc-metadata-client` executables
+- both underlying Java clients read config from _/dcc/dcc-redwood-client/conf/application-redwood.properties_
 
 ## [1.0.4] - 2017-02-15
 

@@ -31,7 +31,7 @@ Configuration on the underlying igcg clients can be set via (from highest to low
 - `REDWOOD_PROPERTIES` or `ACCESS_TOKEN` environment variables
 
 ## For Developers
-For developing the redwood-client
+Please update the [change log](CHANGELOG.md) to reflect each user-facing change you make
 
 ### Development
 Build docker image with:
@@ -54,3 +54,4 @@ docker run --rm -it --net=redwood_default --link redwood-nginx:storage.redwood.i
 - Bump  the version number in _pom.xml_
 - Build and push the docker image to _quay.io_
 - Update this README to use the latest version number
+- Update the [change log](CHANGELOG.md) (rename the "Unreleased" section, etc.)
