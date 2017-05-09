@@ -35,8 +35,8 @@ translation authors keep things up-to-date.
 
 ## 1.0.0 - 2016-12-20
 
-[Unreleased]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/HEAD...1.1.1
-[1.1.1]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.1...1.1.0
+[Unreleased]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.1...HEAD
+[1.1.1]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.0...1.0.4
 [1.0.4]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.4...1.0.3
 [1.0.3]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.3...1.0.2
