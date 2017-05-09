@@ -12,8 +12,6 @@ and this project tries to adhere to [Semantic Versioning](http://semver.org/).
 ### Changed
 - `icgc-storage-client` log renamed from _client.log_ to _icgc-storage-client.log_
 translation authors keep things up-to-date.
-- Fix typos in zh-CN translation.
-- Fix typos in pt-BR translation.
 
 ## [1.1.1] - 2017-03-20
 ### Changed
