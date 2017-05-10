@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project tries to adhere to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+
+## [1.2.0] - 2017-05-10
 ### Added
 - If REDWOOD_LOG_DIR environment variable is set, write logs there.
 - This change log
@@ -33,10 +35,11 @@ translation authors keep things up-to-date.
 
 ## 1.0.0 - 2016-12-20
 
-[Unreleased]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.1...HEAD
+[Unreleased]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.2.0...HEAD
+[1.2.0]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.1...1.2.0
 [1.1.1]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.0...1.1.1
-[1.1.0]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.0...1.0.4
-[1.0.4]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.4...1.0.3
-[1.0.3]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.3...1.0.2
-[1.0.2]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.2...1.0.1
+[1.1.0]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.4...1.1.0
+[1.0.4]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.3...1.0.4
+[1.0.3]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.2...1.0.3
+[1.0.2]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.0...1.0.1
