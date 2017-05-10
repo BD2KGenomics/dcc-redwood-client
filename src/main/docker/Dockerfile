@@ -26,8 +26,8 @@ ADD lib ${REDWOOD_CLIENT_HOME}/lib
 ADD maven2 ${REDWOOD_CLIENT_HOME}/maven2
 ADD conf ${REDWOOD_CLIENT_HOME}/conf
 
-RUN ln -s ${REDWOOD_CLIENT_HOME}/lib/icgc-storage-client-1.0.24-SNAPSHOT/ ${DCC_HOME}/icgc-storage-client
-RUN ln -s ${REDWOOD_CLIENT_HOME}/lib/dcc-metadata-client-0.0.23-SNAPSHOT/ ${DCC_HOME}/dcc-metadata-client
+RUN ln -s ${REDWOOD_CLIENT_HOME}/lib/icgc-storage-client-r1.0.26-SNAPSHOT/ ${DCC_HOME}/icgc-storage-client
+RUN ln -s ${REDWOOD_CLIENT_HOME}/lib/dcc-metadata-client-r0.0.25-SNAPSHOT/ ${DCC_HOME}/dcc-metadata-client
 
 RUN ln -s ${REDWOOD_CLIENT_HOME}/conf/application-redwood.properties ${DCC_HOME}/dcc-metadata-client/conf/application-redwood.properties
 RUN ln -s ${REDWOOD_CLIENT_HOME}/conf/application-redwood.properties ${DCC_HOME}/icgc-storage-client/conf/application-redwood.properties
