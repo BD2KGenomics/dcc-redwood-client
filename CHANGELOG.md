@@ -6,6 +6,12 @@ and this project tries to adhere to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.2.1] - 2017-07-20
+### Changed
+- `applications-redwood.properties` modified to increase the read timeout to 600. This fixes the upload NoSuchKey bug
+- This change log
+- The README
+
 ## [1.2.0] - 2017-05-10
 ### Added
 - If REDWOOD_LOG_DIR environment variable is set, write logs there.
@@ -35,7 +41,8 @@ translation authors keep things up-to-date.
 
 ## 1.0.0 - 2016-12-20
 
-[Unreleased]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.2.0...HEAD
+[Unreleased]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.2.1...HEAD
+[1.2.1]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.1...1.2.0
 [1.1.1]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.0.4...1.1.0
