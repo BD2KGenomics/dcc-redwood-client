@@ -55,22 +55,58 @@ function main {
   # setup
   object=$1
   download=$2
+  original_manifest_file=data/original.tsv
+  small_manifest_file=data/temp.tsv
+  error_log_file=$download/$(date +%y%m%d%H%M%S)'-download-err.log'
+  error_log="Redwood Download Error Log\n"
+  temp_error_file=data/temp_error.log
 
   #Modify the object so that it can be used with the download script. That way you don't have to worry about the format.
-  #Use 'awk'; example: awk 'BEGIN {FS="\t";OFS="\t"}; { t=$1 ; $1=$3; $3=t; print $1, $2, $3}' manifest.tsv > test.tsv 
-  #This will first swap column 1 with column 3 and  output the first three colums to test. 
+  #Use 'awk'; example: awk 'BEGIN {FS="\t";OFS="\t"}; { t=$1 ; $1=$3; $3=t; print $1, $2, $3}' manifest.tsv > test.tsv
+  #This will first swap column 1 with column 3 and  output the first three colums to test.
   #awk 'BEGIN {FS="\t";OFS="\t"}; { t=$3 ; $3=$17; $17=t; print}' ${object} | cut -f1-11  > data/temp.tsv
-  awk 'BEGIN {FS="\t";OFS="\t"}; NR==1{for(i=1;i<=NF;i++){if($i=="Upload File ID" || $i=="File ID"){c=i;break}} t=$3 ; $3=$c; $c=t; print } NR>1{t=$3 ; $3=$c; $c=t; print}' ${object} | cut -f1-11  > data/large_temp.tsv
+  awk 'BEGIN {FS="\t";OFS="\t"}; NR==1{for(i=1;i<=NF;i++){if($i=="Upload File ID" || $i=="File ID"){c=i;break}} t=$3 ; $3=$c; $c=t; print } NR>1{t=$3 ; $3=$c; $c=t; print}' ${object} | cut -f1-11  > $original_manifest_file
 
   # download files in a manifest
   lines_qty=$(cat $object | wc -l)
-  for((i=2;i<=$lines_qty;i++)); do
-      awk 'NR==1 || NR == i' i=$i data/large_temp.tsv > data/temp.tsv
-      icgc-storage-client download --output-dir ${download} --output-layout bundle --manifest data/temp.tsv --force || echo 'Skipping File...'
-      rm data/temp.tsv
+  for((i=2;i<=$lines_qty;i++)); do {
+    {
+        awk 'NR==1 || NR == i' i=$i $original_manifest_file > $small_manifest_file
+        row="$(awk 'BEGIN {FS=":"}NR==i { gsub("[[:space:]]", ""); print }' i=$i $object)"
+        if [ "${#row}" -le "1" ] ; then
+            printf "\nERROR: Row $i is blank\n" 1>&2
+            error_log="$(printf "\n$error_log\nERROR: Row $i is blank")"
+        else
+            icgc-storage-client download --output-dir ${download} --output-layout bundle --manifest $small_manifest_file --force 2> >(tee $temp_error_file)
+        fi
+    } ||
+    {
+        icgc_error="$(cat $temp_error_file)"
+        printf "$icgc_error" 1>&2
+        row_data="$(printf "\nError at Row $i with the following data...\n")
+            \n$(awk 'NR==i { printf "%-30s %-35s\n", "Filename:", $21 }' i=$i $object)
+            \n$(awk 'BEGIN { FS = "[\t]+" }
+                {
+                    for(i=1;i<=2;i++) {
+                        for(j=1; j<=NF; j++)  {
+                            a[NR,j] = $j
+                        }
+                    }
+                }
+                END {
+                    for(k=1; k<=NF; k++){
+                        printf "%-30s %-35s\n", a[1,k]":",a[2,k]
+                    }
+            }' $small_manifest_file)\n==========="
+        printf "$row_data" 1>&2
+        error_log="$(printf "$error_log\n$icgc_error\n")$row_data"
+    }
+   }
+    rm -f $temp_error_file
   done
-  rm data/large_temp.tsv
-
+  printf "$error_log\n" > $error_log_file
+  rm -f $original_manifest_file
+  rm -f $small_manifest_file
   # change ownership of the files in data/ from root to the current user.
   user=$(stat -c '%u:%g' data/)
   if [[ ! -z "$user" ]]
