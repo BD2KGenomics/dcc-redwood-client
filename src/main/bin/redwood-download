@@ -60,7 +60,7 @@ function main {
   error_log_file=$download/$(date +%y%m%d%H%M%S)'-download-err.log'
   error_log="Redwood Download Error Log\n"
   temp_error_file=data/temp_error.log
-
+  bad_file_list=""
   #Modify the object so that it can be used with the download script. That way you don't have to worry about the format.
   #Use 'awk'; example: awk 'BEGIN {FS="\t";OFS="\t"}; { t=$1 ; $1=$3; $3=t; print $1, $2, $3}' manifest.tsv > test.tsv
   #This will first swap column 1 with column 3 and  output the first three colums to test.
@@ -100,10 +100,13 @@ function main {
         #The error message from the $temp_error_file (data/temp_error.log) is displayed
         icgc_error="$(cat $temp_error_file)"
         printf "$icgc_error" 1>&2
+        row_filename="$(awk 'NR==i { print $21 }' i=$i $object)"
+        bad_file_list="$bad_file_list$row_filename (Row $i)\n"
 
-        #Displays the problem row info by transposing the data from smaller manifest file then formatting the output.
+        #Displays the problem row info by transforming the data in smaller manifest file into a table and transposing it.
+        #Afterwards, the table is formatted into something more readable .
         row_data="$(printf "\nError at Row $i with the following data...\n")
-            \n$(awk 'NR==i { printf "%-30s %-35s\n", "Filename:", $21 }' i=$i $object)
+            \n$(awk 'NR==i { printf "%-30s %-35s\n", "Filename:", r'} i=$i r=$row_filename $object)
             \n$(awk 'BEGIN { FS = "[\t]+" }
                 {
                     for(i=1;i<=2;i++) {
@@ -116,7 +119,7 @@ function main {
                     for(k=1; k<=NF; k++){
                         printf "%-30s %-35s\n", a[1,k]":",a[2,k]
                     }
-            }' $mini_manifest_file)\n==========="
+            }' $mini_manifest_file)\n===========\n\n"
         printf "$row_data" 1>&2
 
         # $error_log contains all the errors from this script.
@@ -128,7 +131,15 @@ function main {
     rm -f $temp_error_file
   done
 
-  printf "$error_log\n" > $error_log_file
+  #Lists of all the files that weren't downloaded due to errors.
+  if [ -z "$bad_file_list" ] ; then
+      formatted_bad_file_table="All files in the manifest were downloaded without problems.\n"
+  else
+      formatted_bad_file_table="\n\nFiles Not Downloaded\n==============\n$bad_file_list\n"
+  fi
+
+  printf "$formatted_bad_file_table"
+  printf "$error_log$formatted_bad_file_table\n" > $error_log_file
 
   #Removes temp files
   rm -f $manifest_temp_file
