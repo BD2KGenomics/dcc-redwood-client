@@ -55,17 +55,95 @@ function main {
   # setup
   object=$1
   download=$2
-
+  manifest_temp_file=data/original.tsv
+  mini_manifest_file=data/temp.tsv
+  error_log_file=$download/$(date +%y%m%d%H%M%S)'-download-err.log'
+  error_log="Redwood Download Error Log\n"
+  temp_error_file=data/temp_error.log
+  bad_file_list=""
   #Modify the object so that it can be used with the download script. That way you don't have to worry about the format.
-  #Use 'awk'; example: awk 'BEGIN {FS="\t";OFS="\t"}; { t=$1 ; $1=$3; $3=t; print $1, $2, $3}' manifest.tsv > test.tsv 
-  #This will first swap column 1 with column 3 and  output the first three colums to test. 
+  #Use 'awk'; example: awk 'BEGIN {FS="\t";OFS="\t"}; { t=$1 ; $1=$3; $3=t; print $1, $2, $3}' manifest.tsv > test.tsv
+  #This will first swap column 1 with column 3 and  output the first three colums to test.
   #awk 'BEGIN {FS="\t";OFS="\t"}; { t=$3 ; $3=$17; $17=t; print}' ${object} | cut -f1-11  > data/temp.tsv
-  awk 'BEGIN {FS="\t";OFS="\t"}; NR==1{for(i=1;i<=NF;i++){if($i=="Upload File ID" || $i=="File ID"){c=i;break}} t=$3 ; $3=$c; $c=t; print } NR>1{t=$3 ; $3=$c; $c=t; print}' ${object} | cut -f1-11  > data/temp.tsv
-  
-  # download files in a manifest
-  icgc-storage-client download --output-dir ${download} --output-layout bundle --manifest data/temp.tsv --force
+  awk 'BEGIN {FS="\t";OFS="\t"}; NR==1{for(i=1;i<=NF;i++){if($i=="Upload File ID" || $i=="File ID"){c=i;break}} t=$3 ; $3=$c; $c=t; print } NR>1{t=$3 ; $3=$c; $c=t; print}' ${object} | cut -f1-11  > $manifest_temp_file
 
-  rm data/temp.tsv
+  # Downloads files in a manifest
+  # Each file in the manifest is downloaded one by one in seperate icgc-storage-client calls
+
+  lines_qty=$(cat $object | wc -l)
+  #Iterates each row in the orignial manifest.
+  for((i=2;i<=$lines_qty;i++)); do {
+    {
+        #Creates a smaller manifest file containing only the header row and the (i)th row
+        awk 'NR==1 || NR == i' i=$i $manifest_temp_file > $mini_manifest_file
+
+        # Checks if the (i)th row is blank by
+        # first, removing all the whitespace chars (except the endline char) then saving the output to variable $row.
+        row="$(awk 'BEGIN {FS=":"}NR==i { gsub("[[:space:]]", ""); print }' i=$i $object)"
+
+        # If $row is blank it should have a length of 1.
+        # If the length of $row is equal to or less than 1, then this row is skipped and the "blank row" error
+        # is logged...
+        if [ "${#row}" -le "1" ] ; then
+            printf "\nERROR: Row $i is blank\n" 1>&2
+            error_log="$(printf "\n$error_log\nERROR: Row $i is blank")"
+        else
+            # If the row isn't blank, this script will download the files based on the info in the smaller manifest file.
+            # If an error is thrown, it is displayed and recorded in the $temp_error_file (data/temp_error.log)
+            icgc-storage-client download --output-dir ${download} --output-layout bundle --manifest $mini_manifest_file --force 2> >(tee $temp_error_file)
+        fi
+    } ||
+    {
+        #If the icgc storage client throws an error. The error message and info about the problem row
+        #is displayed and stored in $download/{timestamp}-download-err.log. $download is "/outputs" by default
+
+        #The error message from the $temp_error_file (data/temp_error.log) is displayed
+        icgc_error="$(cat $temp_error_file)"
+        printf "$icgc_error" 1>&2
+        row_filename="$(awk 'NR==i { print $21 }' i=$i $object)"
+        bad_file_list="$bad_file_list$row_filename (Row $i)\n"
+
+        #Displays the problem row info by transforming the data in smaller manifest file into a table and transposing it.
+        #Afterwards, the table is formatted into something more readable .
+        row_data="$(printf "\nError at Row $i with the following data...\n")
+            \n$(awk 'NR==i { printf "%-30s %-35s\n", "Filename:", r'} i=$i r=$row_filename $object)
+            \n$(awk 'BEGIN { FS = "[\t]+" }
+                {
+                    for(i=1;i<=2;i++) {
+                        for(j=1; j<=NF; j++)  {
+                            a[NR,j] = $j
+                        }
+                    }
+                }
+                END {
+                    for(k=1; k<=NF; k++){
+                        printf "%-30s %-35s\n", a[1,k]":",a[2,k]
+                    }
+            }' $mini_manifest_file)\n===========\n\n"
+        printf "$row_data" 1>&2
+
+        # $error_log contains all the errors from this script.
+        # Appends the icgc-storage-client errors and the problem row data to $error_log.
+        # After downloading is completed, $error_log will be saved to $error_log_file (default is outputs/{timestamp}-download-err.log)
+        error_log="$(printf "$error_log\n$icgc_error\n")$row_data"
+    }
+   }
+    rm -f $temp_error_file
+  done
+
+  #Lists of all the files that weren't downloaded due to errors.
+  if [ -z "$bad_file_list" ] ; then
+      formatted_bad_file_table="All files in the manifest were downloaded without problems.\n"
+  else
+      formatted_bad_file_table="\n\nFiles Not Downloaded\n==============\n$bad_file_list\n"
+  fi
+
+  printf "$formatted_bad_file_table"
+  printf "$error_log$formatted_bad_file_table\n" > $error_log_file
+
+  #Removes temp files
+  rm -f $manifest_temp_file
+  rm -f $mini_manifest_file
 
   # change ownership of the files in data/ from root to the current user.
   user=$(stat -c '%u:%g' data/)
