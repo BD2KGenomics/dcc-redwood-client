@@ -11,7 +11,7 @@ wget https://raw.githubusercontent.com/BD2KGenomics/dcc-redwood-client/develop/s
 
 Now you can invoke the client (or derived clients) by mounting in the config file as a volume and specifying the REDWOOD_ENDPOINT environment variable:
 ```
-docker run -it -e REDWOOD_ENDPOINT=<redwood_endpoint> -v $(pwd)/application-redwood.properties:/dcc/dcc-redwood-client/conf/application-redwood.properties -v ~/data:/dcc/data quay.io/ucsc_cgl/redwood-client:1.2.1 bash
+docker run -it -e REDWOOD_ENDPOINT=<redwood_endpoint> -v $(pwd)/application-redwood.properties:/dcc/dcc-redwood-client/conf/application-redwood.properties -v ~/data:/dcc/data quay.io/ucsc_cgl/redwood-client:1.2.2 bash
 ```
 
 Note: you can also specify `-e ACCESS_TOKEN=<your-access-token>` when you invoke `docker run` instead of using the config file (as long as you're on a private machine).
@@ -53,6 +53,8 @@ docker run --rm -it --net=redwood_internal --link redwood-nginx:storage.redwood.
 
 ### Release
 - Bump  the version number in _pom.xml_
+- Login to quay.io on the command line 'docker login quay.io'
 - `./mvnw deploy` to build and push the docker image to _quay.io_
 - Update this README to use the latest version number
+- Edit the version on the pom.xml to the `next_version-SNAPSHOT`
 - Update the [change log](CHANGELOG.md) (rename the "Unreleased" section, etc.)

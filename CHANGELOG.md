@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project tries to adhere to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+## [1.2.2] - 2017-11-03
+### Changed
+- Redwood download continues when an error occurs, improved logging, cancels download when CTRL-C pressed
+- This change log
+- The README
 
 ## [1.2.1] - 2017-07-20
 ### Changed
@@ -41,7 +46,8 @@ translation authors keep things up-to-date.
 
 ## 1.0.0 - 2016-12-20
 
-[Unreleased]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.2.1...HEAD
+[Unreleased]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.2.2...HEAD
+[1.2.2]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.2.1...1.2.2
 [1.2.1]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.2.0...1.2.1
 [1.2.0]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.1...1.2.0
 [1.1.1]: https://github.com/BD2KGenomics/dcc-redwood-client/compare/1.1.0...1.1.1
